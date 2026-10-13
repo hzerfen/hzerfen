@@ -1,72 +1,87 @@
-# Tek Sayfalık Tekrar Kartı: Operatörler, if/switch, Döngüler (C stili)
+# Tek Sayfalık Tekrar Kartı: Operatörler, if/switch, Döngüler (Java)
+Kaynak: Computer Programming I (Operators, Control Structures, Loop Structures) slaytları.
 
 ## 1) Operatörler
-- Aritmetik: `+ - * / %`. **Tam sayı bölmesi küsuratı atar:** `7/2 = 3`, `7%2 = 1`, `7/2.0 = 3.5`.
-- Atama: `= += -= *= /= %=` → `x += 3` ile `x = x + 3` aynıdır.
-- Artırma: `i++` (önce kullan, sonra artır), `++i` (önce artır, sonra kullan).
-  `int a = 5; int b = a++;` → b=5, a=6. `int b = ++a;` → b=6, a=6.
-- Karşılaştırma: `== != < > <= >=` → sonuç 1 (doğru) ya da 0 (yanlış).
-- Mantıksal: `&&` (ve), `||` (veya), `!` (değil).
-  Kısa devre: `&&`'de sol taraf yanlışsa sağ taraf hiç çalışmaz; `||`'de sol doğruysa sağ çalışmaz.
-- Öncelik (yüksek→düşük): `! ++ --` → `* / %` → `+ -` → `< > <= >=` → `== !=` → `&&` → `||` → `=`
-- **Klasik tuzak:** `if (x = 5)` atama yapar, hep doğrudur. Karşılaştırma için `==` yaz.
-- C'de **0 yanlış, sıfırdan farklı her değer doğrudur.**
+- Atama `=`: önce sağ taraf hesaplanır, sonra sola atanır. `x = x + 1;` (x=2 ise x=3).
+- Aritmetik: `+ - * / %`. Tam sayı bölmesi küsuratı atar: `7/2 = 3`, `7%2 = 1`.
+- Birleşik atama: `x += c` → `x = x + c`, `x -= c` → `x = x - c`. `=+` ve `=-` diye yazılmaz.
+- Artırma/azaltma:
+  - `y = x++;` önce kullan, sonra artır. x=5 → **y=5, x=6**
+  - `z = ++x;` önce artır, sonra kullan. x=5 → **z=6, x=6**
+  - `i=3` iken `println(++i)` → 4, `println(i++)` → 4 yazar, sonra i=5.
+- Karşılaştırma: `== != > < >= <=` ve `!` (değil). Sonuç `true`/`false` (boolean).
+- Üçlü (ternary): `max = (a > b) ? a : b;` koşul doğruysa ilk, yanlışsa ikinci ifade.
+- Mantıksal: `&&` (ve), `||` (veya). Tek `&` ve `|` bit düzeyindedir.
 
-## 2) Koşullar
-```c
-if (not >= 90) printf("AA");
-else if (not >= 80) printf("BA");
-else printf("Kaldi");
+| && | true | false |   | \|\| | true | false |
+|---|---|---|---|---|---|---|
+| **true** | true | false | | **true** | true | true |
+| **false** | false | false | | **false** | true | false |
+
+- Bit operatörleri: `&` AND, `|` OR, `^` XOR, `~` NOT. Örnek: a=0011 1100, b=0000 1101 →
+  `a&b`=0000 1100, `a|b`=0011 1101, `a^b`=0011 0001, `~a`=1100 0011.
+- Kaydırma: `<<` sola, `>>` işaretli sağa (işaret biti korunur), `>>>` işaretsiz sağa (boşluğa 0 gelir).
+  `a=0011 1100 (60)` → `a << 2` = 240, `a >> 2` = 15.
+  Negatiflerde fark: `1111 1110 >> 1` = `1111 1111` (-1), `>>> 1` = `0111 1111` (127).
+- **Kaydırma değişkeni değiştirmez:** `i=2; i<<1;` → i hâlâ 2. `j = i<<1;` → j=4.
+- Negatif sayı = pozitifin bitlerini ters çevir + 1 (2'ye tümleyen).
+- Öncelik (yüksek→düşük): sonek `expr++ expr--` → birli `++expr --expr +expr -expr ~ !` →
+  `* / %` → `+ -` → kaydırma `<< >> >>>` → ilişkisel `< > <= >= instanceof` → eşitlik `== !=` →
+  `&` → `^` → `|` → `&&` → `||` → `?:` → atama `= += -= ...`
+
+## 2) if / else if / else
+```java
+if (i >= 5) { System.out.println("Large"); }
+else if (i <= 2) { System.out.println("Small"); }
+else { System.out.println("Average"); }
 ```
-- Zincirde ilk doğru olan çalışır, gerisine bakılmaz.
-- `if` satırının sonuna `;` koyma: `if (x > 0);` gövdeyi boşa çıkarır.
-- Tek satırdan fazla ifade varsa `{ }` şart.
-- Üçlü: `sonuc = (a > b) ? a : b;`
+- Koşul `true` ise blok çalışır. Zincirde **ilk doğru olan** çalışır, gerisi atlanır.
+- `{ }` yoksa sadece **sonraki tek satır** koşulludur. Hep `{ }` kullan.
+- `if (koşul);` → `;` boş ifade olur, if etkisiz kalır. Yapma.
+- `if`, `else if`, `else` tek bir bloktur; arasına başka ifade (`k++;`) koyarsan **derleme hatası**.
+- Birden fazla ayrı `if` yerine `else if` kullan (biri doğruysa diğerleri olamaz).
 
-```c
-switch (gun) {
-    case 1: printf("Pzt"); break;
-    case 2: printf("Sal"); break;
-    default: printf("Diger");
+## 3) switch
+```java
+switch (month) {
+    case 1: monthString = "January"; break;
+    case 2: monthString = "February"; break;
+    default: monthString = "Invalid month"; break;
 }
 ```
-- `switch` sadece tam sayı / `char` ile çalışır (float, string olmaz).
-- **`break` unutulursa sonraki case'lere düşer (fall-through).**
-- `case` değerleri sabit olmalı, `default` isteğe bağlı.
+- Değişkenin değerine göre case seçer. **Sadece eşitlik** kontrol eder; `if` her koşulu kontrol eder (daha esnek).
+- **`break` yoksa fall-through:** eşleşen case'ten sonraki tüm case'ler çalışır. month=8 iken break'siz: August, September, ..., December.
+- İstisna: `case 1: case 3: case 5: ... numDays = 31; break;` (birden çok case aynı işi yapar).
+- Artık yıl: `((year % 4 == 0) && !(year % 100 == 0)) || (year % 400 == 0)` → 2000 için Şubat 29 gün.
 
-## 3) Döngüler
-| Döngü | Ne zaman | Not |
-|---|---|---|
-| `for (i=0; i<n; i++)` | Tekrar sayısı belli | başlangıç; koşul; artış |
-| `while (koşul)` | Sayı belli değil | Koşul **önce** kontrol edilir, hiç çalışmayabilir |
-| `do { } while (koşul);` | En az 1 kez çalışmalı | Koşul **sonda**, `;` unutma |
-
-- `break;` döngüyü tamamen bitirir. `continue;` o turu atlar, sonraki tura geçer.
-- Sonsuz döngü: `for(;;)` ya da `while(1)`.
-- `for (i=0; i<5; i++)` → i = 0,1,2,3,4 (5 tur, 5 yazılmaz). Döngü bitince `i = 5`.
-- İç içe döngüde toplam tur = dış × iç.
-- Toplam / sayaç: döngüden **önce** `toplam = 0;` yap.
-
-Örnek (1'den n'ye toplam):
-```c
-int toplam = 0;
-for (int i = 1; i <= n; i++) toplam += i;
+## 4) Döngüler
+```java
+while (koşul) { ... }                 // koşul önce kontrol, hiç çalışmayabilir
+do { ... } while (koşul);             // koşul sonda, EN AZ 1 kez çalışır, ; unutma
+for (int i = 1; i < 11; i++) { ... }  // başlangıç; bitiş koşulu; artış
+for (int item : numbers) { ... }      // for-each: dizi/koleksiyon elemanları
 ```
+- `for` içinde başlatma bir kez çalışır, artış her turdan sonra çalışır, koşul `false` olunca biter.
+- Birden çok değişken: `for (int i=1, j=10; i<j; i++, j--)`.
+- Sonsuz döngü: `while (true) { }` veya `for ( ; ; ) { }`.
+- Sayı belliyse `for`, belli değilse `while` tercih et. Toplam için döngüden önce `int sum = 0;`.
+- Döngü kontrol ifadeleri:
+  - `break;` içinde bulunduğu en içteki döngü/switch'i bitirir. Etiketli: `break dis;` dıştaki etiketli döngüyü bitirir (Java'da `goto` yok).
+  - `continue;` sadece o turu atlar, sonraki tura geçer. (`if (i==5) continue;` → 5 yazılmaz.)
+  - `return;` metottan çıkar.
+- Tur sayıları:
+  - `for(int i=0;i<10;i++)` → **10**
+  - `for(int i=0;i<1;i++)` → **1**
+  - `for(int i=0;i==0;i++)` → **1**
+  - `for(int i=5;i<=1;i++)` → **0** (hiç çalışmaz)
 
-Çift sayıları yaz:
-```c
-for (i = 1; i <= 10; i++) {
-    if (i % 2 != 0) continue;
-    printf("%d ", i);   // 2 4 6 8 10
-}
-```
-
-## 4) Sınav Tuzakları (hızlı kontrol)
-1. `=` ile `==` karışıklığı.
-2. Tam sayı bölmesi: `1/2` = 0.
-3. `i++` / `++i` farkı ifade içinde.
-4. `switch`'te `break` yok → fall-through.
-5. `if(...);` ve `for(...);` sonundaki gereksiz noktalı virgül.
-6. `<` ile `<=` farkı → tur sayısı bir kayar.
-7. `do-while` en az bir kez çalışır, `while` hiç çalışmayabilir.
-8. `&&` / `||` kısa devre yüzünden yan etkili ifade (`i++`) atlanabilir.
+## 5) Sınav Tuzakları
+1. `x++` ile `++x` farkı (atama içinde).
+2. Tam sayı bölmesi: `1/2 = 0`.
+3. `&&`/`||` (boolean) ile `&`/`|` (bit) karışıklığı.
+4. `>>` işareti korur, `>>>` 0 doldurur. Kaydırma değişkeni değiştirmez.
+5. switch'te `break` unutmak → fall-through.
+6. `if(...);` ve `for(...);` sonundaki `;`.
+7. `<` ile `<=` farkı, tur sayısını kaydırır.
+8. `do-while` en az bir kez çalışır.
+9. Aynı isimli değişkeni `for` içinde tekrar tanımlama (`int i; for(int i=...)` derleme hatası).
